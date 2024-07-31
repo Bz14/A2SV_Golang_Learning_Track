@@ -2,6 +2,15 @@
 
 A console application for managing library operations, including adding, borrowing, returning of a book and also members.
 
+## Project Structure
+
+The project is organized into several packages:
+
+- **main.go**: This is the entry point of the application.
+- **models/**: This package contains the data structures used in the application, including `Book` and `Member`.
+- **controllers/**: This package contains the `library_controller.go` file, which handles user input and controls the flow of the application.
+- **services/**: This package contains the `library_service.go` file, which provides the core functionality of the library management system, such as adding and removing books and members.
+
 ## Installation Instructions
 
 1. Clone the repository:
@@ -27,3 +36,4 @@ A console application for managing library operations, including adding, borrowi
 - Track book loans and returns.
 - Display all available books.
 - Display a book borrowed by a member.
+- Display all members
