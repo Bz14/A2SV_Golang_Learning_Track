@@ -17,10 +17,27 @@ var memberIdValue = 1
 func AddNewBook(reader *bufio.Reader, library services.LibraryManager){
 	flag := true
 	for flag{
-		fmt.Printf("\tEnter Book Title: ")
-		title, _ := reader.ReadString('\n')
-		fmt.Printf("\tEnter Book Author: ")
-		author, _ := reader.ReadString('\n')
+		invalidTitle := true
+		invalidAuthor := true
+		var title, author string
+		for invalidTitle{
+			fmt.Printf("\tEnter Book Title: ")
+			title, _ = reader.ReadString('\n')
+			if strings.TrimSpace(title) == ""{
+				fmt.Println("\tInvalid input. Try again.")
+				continue
+			}
+			invalidTitle = false
+		}
+		for invalidAuthor{
+			fmt.Printf("\tEnter Book Author: ")
+			author, _ = reader.ReadString('\n')
+			if strings.TrimSpace(author) == ""{
+				fmt.Println("\tInvalid input. Try again.")
+				continue
+			}
+			invalidAuthor = false
+		}
 		newBook := models.Book{
 			ID: int(bookIdValue), 
 			Title: strings.TrimSpace(title), 
@@ -37,8 +54,17 @@ func AddNewBook(reader *bufio.Reader, library services.LibraryManager){
 func AddMember(reader *bufio.Reader, library services.LibraryManager){
 	flag := true
 	for flag{
-		fmt.Printf("\tEnter Member Name: ")
-		name, _ := reader.ReadString('\n')
+		invalidMember := true
+		var name string
+		if invalidMember{
+			fmt.Printf("\tEnter Member Name: ")
+			name, _ = reader.ReadString('\n')
+			if strings.TrimSpace(name) == ""{
+				fmt.Println("\tInvalid input. Try again.")
+				continue
+			}
+			invalidMember = false
+		}
 		newMember := models.Member{
 			ID: int(memberIdValue),
 			Name: strings.TrimSpace(name),
