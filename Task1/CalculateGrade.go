@@ -41,24 +41,36 @@ func getInput(prompt string, r *bufio.Reader)(string, error){
 func main() {
 	subjects := map[string]float64{}
 	reader := bufio.NewReader(os.Stdin)
-	studentName, _ := getInput("Enter Your Name: ", reader)
-	numOfSubjects, _ := getInput("Enter the number of subjects: ", reader)
-	subCount, _ := strconv.ParseInt(strings.TrimSpace(numOfSubjects), 10, 64)
-	for subCount > 0{
-		subject, _ := getInput("Enter the name of subject: ", reader)
-		_, isExists := subjects[subject]
-		if isExists{
-			fmt.Println("Subject already exists, enter another: ")
+	flag := true
+	for flag{
+		studentName, _ := getInput("Enter Your Name: ", reader)
+		numOfSubjects, _ := getInput("Enter the number of subjects: ", reader)
+		subCount, err := strconv.ParseInt(strings.TrimSpace(numOfSubjects), 10, 64)
+		if err != nil{
+			fmt.Println("Invalid input. Please start again.")
 			continue
 		}
-		grade, _ := getInput("Enter your grade: ", reader)
-		gradeInt, _ := strconv.ParseFloat(strings.TrimSpace(grade), 64)
-		if (gradeInt < 0 || gradeInt > 100){
-			fmt.Println("Invalid Grade Range, insert between (0-100).")
-			continue
+		for subCount > 0{
+			subject, _ := getInput("Enter the name of subject: ", reader)
+			_, isExists := subjects[subject]
+			if isExists{
+				fmt.Println("Subject already exists, enter another: ")
+				continue
+			}
+			grade, _ := getInput("Enter your grade: ", reader)
+			gradeInt, err := strconv.ParseFloat(strings.TrimSpace(grade), 64)
+			if err != nil{
+				fmt.Println("Invalid input. Please start again.")
+				continue
+			}
+			if (gradeInt < 0 || gradeInt > 100){
+				fmt.Println("Invalid Grade Range, insert between (0-100).")
+				continue
+			}
+			subjects[strings.TrimSpace(subject)] = gradeInt
+			subCount--
 		}
-		subjects[strings.TrimSpace(subject)] = gradeInt
-		subCount--
-	}
+	flag = false
 	fmt.Println(displayOutput(studentName, subjects))
+	}
 }
