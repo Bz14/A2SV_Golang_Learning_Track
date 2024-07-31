@@ -19,20 +19,7 @@ type LibraryManager interface {
 	ReturnBook(bookID int, memberID int) error
 	ListAvailableBooks() []models.Book
 	ListBorrowedBooks(memberID int) []models.Book
-	CheckBookId(bookID int)bool
-	CheckMemberId(memberID int)bool
-}
-
-/* A function to list check if a book exists*/
-func (lib *Library)CheckBookId(bookID int)bool{
-	_, exists := lib.Books[bookID]
-	return exists
-}
-
-/* A function to list check if a member exists*/
-func (lib *Library)CheckMemberId(memberID int)bool{
-	_, exists := lib.Members[memberID]
-	return exists
+	ListMembers() []models.Member
 }
 
 /* A function to add new book*/
@@ -125,6 +112,16 @@ func (lib *Library) ListAvailableBooks() []models.Book{
 		books = append(books, bookData)
 	}
 	return books
+}
+
+/* A function to list all available books*/
+func (lib *Library) ListMembers() []models.Member{
+	var members []models.Member
+	allMembers := lib.Members
+	for _, member := range allMembers{
+		members = append(members, member)
+	}
+	return members
 }
 
 /* A function to list borrowed books by a user*/

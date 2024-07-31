@@ -10,32 +10,25 @@ import (
 	"strings"
 )
 
+var bookIdValue = 1
+var memberIdValue = 1
+
 /* A function to add a new book*/
 func AddNewBook(reader *bufio.Reader, library services.LibraryManager){
 	flag := true
 	for flag{
-		fmt.Printf("\tEnter Book Id: ")
-		id, _ := reader.ReadString('\n')
-		bookId, err := strconv.ParseInt(strings.TrimSpace(id), 10, 36)
-		if library.CheckBookId(int(bookId)){
-			fmt.Println("\tBook Id already exists.Try again.")
-			continue
-		}
-		if err != nil{
-			fmt.Println("\tBook Id must be integer. Please insert an integer.")
-			continue
-		}
 		fmt.Printf("\tEnter Book Title: ")
 		title, _ := reader.ReadString('\n')
 		fmt.Printf("\tEnter Book Author: ")
 		author, _ := reader.ReadString('\n')
 		newBook := models.Book{
-			ID: int(bookId), 
+			ID: int(bookIdValue), 
 			Title: strings.TrimSpace(title), 
 			Author: strings.TrimSpace(author), 
 			Status: "Available",
 		}
 		library.AddBook(newBook)
+		bookIdValue += 1
 		flag = false
 	}
 }
@@ -44,24 +37,14 @@ func AddNewBook(reader *bufio.Reader, library services.LibraryManager){
 func AddMember(reader *bufio.Reader, library services.LibraryManager){
 	flag := true
 	for flag{
-		fmt.Printf("\tEnter Member Id: ")
-		id, _ := reader.ReadString('\n')
-		memberId, err := strconv.ParseInt(strings.TrimSpace(id), 10, 36)
-		if library.CheckMemberId(int(memberId)){
-			fmt.Println("\tMember Id already exists.Try again.")
-			continue
-		}
-		if err != nil{
-			fmt.Println("\tMember Id must be integer. Please insert an integer.")
-			continue
-		}
 		fmt.Printf("\tEnter Member Name: ")
 		name, _ := reader.ReadString('\n')
 		newMember := models.Member{
-			ID: int(memberId),
+			ID: int(memberIdValue),
 			Name: strings.TrimSpace(name),
 		}
 		library.AddMember(newMember)
+		memberIdValue += 1
 		flag = false
 	}
 }
@@ -150,6 +133,23 @@ func ShowBooks(reader *bufio.Reader, library services.LibraryManager){
 	}
 }
 
+/* A function to display all memebers*/
+func ShowMembers(reader *bufio.Reader, library services.LibraryManager){
+	allMembers := library.ListMembers()
+	if len(allMembers) < 1{
+		fmt.Println("\n\tNo Available Members.")
+		return
+	}
+	fmt.Println("\t-----------------------------------------------------------")
+	fmt.Println("\t\tMemberId\t\tName")
+	fmt.Println("\t------------------------------------------------------------")
+	for _, member := range allMembers{
+		fmt.Printf("\t\t%d\t\t\t%s", member.ID, member.Name)
+		fmt.Println("\n\t-----------------------------------------------------------")
+	}
+}
+
+
 /* A function to display borrowed books*/
 func ShowBorrowedBooks(reader *bufio.Reader, library services.LibraryManager){
 	flag := true
@@ -186,7 +186,7 @@ func ShowBorrowedBooks(reader *bufio.Reader, library services.LibraryManager){
 func ShowOptions(){
 	options := "\n\t=========================================================\n"
 	options += "\t\t\t1.Add new book.\n\t\t\t2.Add new Member.\n\t\t\t3.Remove a book.\n\t\t\t4.Borrow a book.\n\t\t\t"
-	options += "5.Return a book.\n\t\t\t6.List all books.\n\t\t\t7.List all borrowed books by a member.\n\t\t\t8.Exit."
+	options += "5.Return a book.\n\t\t\t6.List all books.\n\t\t\t7.List all borrowed books by a member.\n\t\t\t8.Show all members\n\t\t\t9.Exit."
 	options += "\n\t========================================================="
 	fmt.Println(options)
 }
@@ -222,6 +222,8 @@ func Menu() {
 		case 7:
 			ShowBorrowedBooks(reader, library)
 		case 8:
+			ShowMembers(reader, library)
+		case 9:
 			flag = false
 		default:
 			fmt.Println("\tInvalid input.Try Again.")
