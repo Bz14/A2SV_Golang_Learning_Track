@@ -6,66 +6,76 @@ import (
 	"time"
 )
 
-var listOfTasks = []models.Task{
-	{ID: "1", Title: "Taking a note", Description: "Take Notes on the meeting", DueDate: time.Now(), Status: "Done"},
-	{ID: "2", Title: "Sleeping", Description: "Sleep for two hours", DueDate: time.Now(), Status: "In Progress"},
+type TaskManager struct{
+	listOfTasks map[string]models.Task
 }
+
+func NewTaskManager() *TaskManager{
+	return &TaskManager{
+		listOfTasks: map[string]models.Task{
+			"1" : {ID: "1", Title: "Taking a note", Description: "Take Notes on the meeting", DueDate: time.Now(), Status: "Done"},
+			"2" : {ID: "2", Title: "Sleeping", Description: "Sleep for two hours", DueDate: time.Now(), Status: "In Progress"},
+		},
+	}
+}
+
 
 var taskId = 3
 
 /* List of all available tasks*/
-func GetAllTasks()[]models.Task{
-	return listOfTasks
+func (t *TaskManager)GetAllTasks()[]models.Task{
+	var tasks []models.Task
+	for _, task := range t.listOfTasks{
+		tasks = append(tasks, task)
+	}
+	return tasks
 }
 
 /* Get task by ID*/
-func GetTaskById(id string)(bool, models.Task){
-	for _, task := range listOfTasks{
-		if task.ID == id{
-			return true, task
-		}
+func (t *TaskManager)GetTaskById(id string)(bool, models.Task){
+	task, exists := t.listOfTasks[id]
+	if !exists{
+		return false, models.Task{}
 	}
-	return false, models.Task{}
+	return true, task
 }
 
 /* Delete task with a given ID */
-func DeleteTaskById(id string)bool{
-	var newListTask []models.Task
-	found := false
-	for _, task := range listOfTasks{
-		if task.ID == id{
-			found = true
-			continue
-		}
-		newListTask = append(newListTask, task)
+func (t *TaskManager) DeleteTaskById(id string)bool{
+	_, exists := t.listOfTasks[id]
+	if !exists{
+		return false
 	}
-	listOfTasks = newListTask
-	return found
+	delete(t.listOfTasks, id)
+	return true
 }
 
 /* Create a new task*/
-func CreateTask(newTask models.Task)models.Task{
+func (t *TaskManager) CreateTask(newTask models.Task)models.Task{
 	newTask.ID = strconv.Itoa(taskId)
+	t.listOfTasks[newTask.ID] = newTask
 	taskId++
-	listOfTasks = append(listOfTasks, newTask)
 	return newTask
 }
 
 /* Updating a task with a given ID*/
-func UpdateTask(id string, task models.Task)bool{
-	for i := 0; i < len(listOfTasks); i++{
-		if listOfTasks[i].ID == id{
-			if task.Title != ""{
-				listOfTasks[i].Title = task.Title
-			}
-			if task.Description != ""{
-				listOfTasks[i].Description = task.Description
-			}
-			if task.Status != ""{
-				listOfTasks[i].Status = task.Status
-			}
-			return true
-		}
+func  (t *TaskManager) UpdateTask(id string, newTask models.Task)bool{
+	task, exists := t.listOfTasks[id]
+	if !exists{
+		return false
 	}
-	return false
+	if newTask.Title != ""{
+		task.Title =  newTask.Title
+	}
+	if newTask.Description != ""{
+		task.Title =  newTask.Description
+	}
+	if newTask.Status != ""{
+		task.Title =  newTask.Status
+	}
+	if !newTask.DueDate.IsZero(){
+		task.Title =  newTask.Status
+	}
+	t.listOfTasks[id] = task
+	return true
 }
