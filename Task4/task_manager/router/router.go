@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/* Routing Http Requests */
 func Router() {
 	route := gin.Default()
 	route.GET("/tasks", controller.AllTaskHandler)
