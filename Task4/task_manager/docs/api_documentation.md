@@ -1,4 +1,33 @@
-# Task Management API Documentation
+# Task Management API
+
+An api endpoint for performing CRUD operations.
+
+## Project Structure
+
+The project is organized into several packages:
+
+- **main.go**: This is the entry point of the application.
+- **models/**: This package contains the data structures used in the application, including `Task`.
+- **controllers/**: This package contains the `task_controller.go` file, which Handles incoming HTTP requests and invokes the appropriate service methods.
+- **router/**: This package contains the `router.go` file, which sets up the routes and initializes the Gin router and Defines the routing configuration for the API
+- **data/**: This package contains the `task_service.go` file, which contains business logic and data manipulation functions.
+
+## Installation Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone <https://github.com/Bz14/A2SV_Golang_Learning_Track.git>
+   ```
+2. cd Task4
+3. cd task_manager
+4. go run main.go
+
+## Usage Instructions
+
+- Start the application:
+  ```bash
+  go run main.go
+  ```
 
 ## Endpoints
 
