@@ -52,7 +52,6 @@ The project is organized into several packages:
 **Response:**
 
 - **200 OK:** Returns the task details.
-- **400 Bad Request:** Invalid task ID.
 - **404 Not Found:** Task not found.
 
 ---
@@ -108,7 +107,7 @@ The project is organized into several packages:
 
 **Response:**
 
-- **400 Bad Request:** Invalid task ID.
+- **200 OK:** Task deleted
 - **404 Not Found:** Task not found.
 
 [Postman Documentation](https://documenter.getpostman.com/view/34226868/2sA3rwKtQ1)
