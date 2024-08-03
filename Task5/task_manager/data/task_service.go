@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"task_manager/models"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,26 +16,36 @@ import (
 type TaskManager struct{
 	Collection *mongo.Collection
 }
+func Connection(URI string)*mongo.Client{
+	ctx, cancelCtx := context.WithTimeout(context.Background(), 100 * time.Second)
+	defer cancelCtx()
+	connection, err := mongo.Connect(ctx, options.Client().ApplyURI(URI))
+	if err != nil{
+		log.Fatal(err)
+	}
+	err = connection.Ping(ctx, nil)
+	if err != nil{
+		log.Fatal(err)
+	}
+	return connection
+}
 
-func NewTaskManager() *TaskManager{
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-	connection, err := mongo.Connect(context.TODO(), clientOptions)
-	if err != nil{
-		log.Fatal(err)
-	}
-	err = connection.Ping(context.TODO(), nil)
-	if err != nil{
-		log.Fatal(err)
-	}
+func CreateDB()*mongo.Collection{
+	connection := Connection("mongodb://localhost:27017")
 	collection := connection.Database("task_manager").Collection("tasks")
 	fmt.Println("Connected")
 	// defer connection.Disconnect(context.TODO())
-	
+	return collection
+}
+
+
+func NewTaskManager() *TaskManager{
+	collection := CreateDB()
+
 	return &TaskManager{
 		Collection: collection,
 	}
 }
-
 
 /* List of all available tasks*/
 func (t *TaskManager)GetAllTasks()interface{}{
