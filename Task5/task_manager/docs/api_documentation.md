@@ -32,7 +32,7 @@ Ensure your MongoDB server is running. You can start it using:
   mongod
 ```
 
-4. go run main.go
+6. go run main.go
 
 ## Usage Instructions
 
