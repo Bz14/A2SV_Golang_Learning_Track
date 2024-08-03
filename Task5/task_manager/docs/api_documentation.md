@@ -20,6 +20,17 @@ The project is organized into several packages:
    ```
 2. cd Task4
 3. cd task_manager
+4. Install MongoDB (if you haven't already)
+
+Follow the instructions for your operating system on the [official MongoDB installation page](https://docs.mongodb.com/manual/installation/).
+
+5. Start the MongoDB server
+
+Ensure your MongoDB server is running. You can start it using:
+
+````bash
+mongod
+
 4. go run main.go
 
 ## Usage Instructions
@@ -27,7 +38,7 @@ The project is organized into several packages:
 - Start the application:
   ```bash
   go run main.go
-  ```
+````
 
 ## Endpoints
 
