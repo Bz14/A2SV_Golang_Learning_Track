@@ -68,13 +68,13 @@ func  (t *TaskManager) UpdateTask(id string, newTask models.Task)bool{
 		task.Title =  newTask.Title
 	}
 	if newTask.Description != ""{
-		task.Title =  newTask.Description
+		task.Description =  newTask.Description
 	}
 	if newTask.Status != ""{
-		task.Title =  newTask.Status
+		task.Status =  newTask.Status
 	}
 	if !newTask.DueDate.IsZero(){
-		task.Title =  newTask.Status
+		task.DueDate =  newTask.DueDate
 	}
 	t.listOfTasks[id] = task
 	return true
