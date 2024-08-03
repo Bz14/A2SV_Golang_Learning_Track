@@ -28,17 +28,19 @@ Follow the instructions for your operating system on the [official MongoDB insta
 
 Ensure your MongoDB server is running. You can start it using:
 
-````bash
-mongod
+```bash
+  mongod
+```
 
 4. go run main.go
 
 ## Usage Instructions
 
 - Start the application:
-  ```bash
+
+```bash
   go run main.go
-````
+```
 
 ## Endpoints
 
