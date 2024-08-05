@@ -26,11 +26,15 @@ func CountFrequency(st string)map[string]int{
 }
 func main(){
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("\n\t========== Check Palindrome ==========")
 	fmt.Print("\n\tEnter a string: ")
 	str, _ := reader.ReadString('\n')
+	fmt.Println("\t======================================")
 	word := CountFrequency(strings.TrimSpace(str))
-	fmt.Print("\t")
+	fmt.Println("\t\tWord\t\tCount")
+	fmt.Println("\t======================================")
 	for k, v := range word{
-		fmt.Printf("%s = %d\t", k, v)
+		fmt.Printf("\t\t%s\t\t%d\n", k, v)
+		fmt.Println("\t======================================")
 	}
 }
