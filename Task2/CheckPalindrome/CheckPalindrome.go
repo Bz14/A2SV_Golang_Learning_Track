@@ -30,6 +30,7 @@ func CheckPalindrome(st string)bool{
 
 func main(){
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("\n\t========== Check Palindrome ==========")
 	fmt.Print("\n\tEnter a string: ")
 	str, _ := reader.ReadString('\n')
 	if CheckPalindrome(strings.TrimSpace(str)){
@@ -37,4 +38,5 @@ func main(){
 	}else{
 		fmt.Printf("\t%s is not a palindrome.\n",strings.TrimSpace(str))
 	}
+	fmt.Println("\n\t======================================")
 }
