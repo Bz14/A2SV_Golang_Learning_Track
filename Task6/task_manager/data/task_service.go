@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"task_manager/models"
-	"time"
+
+	"task_manager/database"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,44 +16,37 @@ import (
 )
 
 type TaskManager struct{
-	Collection *mongo.Collection
-}
-func Connection(URI string)*mongo.Client{
-	ctx, cancelCtx := context.WithTimeout(context.Background(), 100 * time.Second)
-	defer cancelCtx()
-	connection, err := mongo.Connect(ctx, options.Client().ApplyURI(URI))
-	if err != nil{
-		log.Fatal(err)
-	}
-	err = connection.Ping(ctx, nil)
-	if err != nil{
-		log.Fatal(err)
-	}
-	return connection
+	taskCollection *mongo.Collection
 }
 
-func CreateDB()*mongo.Collection{
-	connection := Connection("mongodb://localhost:27017")
+func CreateTaskCollection()*mongo.Collection{
+	connection := database.ConnectToDatabase()
 	collection := connection.Database("task_manager").Collection("tasks")
-	fmt.Println("Connected")
-	// defer connection.Disconnect(context.TODO())
 	return collection
 }
 
-
 func NewTaskManager() *TaskManager{
-	collection := CreateDB()
+	collection := CreateTaskCollection()
 
 	return &TaskManager{
-		Collection: collection,
+		taskCollection: collection,
 	}
 }
 
 /* List of all available tasks*/
-func (t *TaskManager)GetAllTasks()interface{}{
+func (t *TaskManager)GetAllTasks(role string, uid string)[]models.Task{
 	var tasks []models.Task
 	option := options.Find()
-	cursor, err := t.Collection.Find(context.TODO(), bson.D{{}}, option)
+	var cursor *mongo.Cursor
+	var err error
+	fmt.Println("Role", strings.ToUpper(role))
+	if strings.ToUpper(role) == "ADMIN"{
+		fmt.Println("Admin")
+		cursor, err = t.taskCollection.Find(context.TODO(), bson.D{{}}, option)
+	}else{
+		cursor, err = t.taskCollection.Find(context.TODO(), bson.D{{Key : "uid", Value : uid}})
+	}
+	
 	if err != nil{
 		log.Fatal(err)
 		return nil
@@ -69,36 +64,50 @@ func (t *TaskManager)GetAllTasks()interface{}{
 }
 
 /* Get task by ID*/
-func (t *TaskManager)GetTaskById(id  string)interface{}{
+func (t *TaskManager)GetTaskById(id string, uid string, role string)interface{}{
+	var err error
 	objId, _ := primitive.ObjectIDFromHex(id)
+	userId, _ := primitive.ObjectIDFromHex(uid)
 	var task models.Task
-	err := t.Collection.FindOne(context.TODO(), bson.D{{Key : "_id", Value : objId}}).Decode(&task)
+	err = t.taskCollection.FindOne(context.TODO(), bson.D{{Key : "_id", Value : objId}}).Decode(&task)
 	if err != nil{
+		return nil
+	}
+	fmt.Println(err)
+	if strings.ToUpper(role) == "USER" && task.UserId != userId{
 		return nil
 	}
 	return task
 }
 
 /* Delete task with a given ID */
-func (t *TaskManager) DeleteTaskById(id string)int64{
+func (t *TaskManager) DeleteTaskById(id string, uid string, role string)int64{
+	var err error
+	var result *mongo.DeleteResult
 	objId, _ := primitive.ObjectIDFromHex(id)
-	result, err := t.Collection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}})
+	if strings.ToUpper(role) == "ADMIN"{
+		result, err = t.taskCollection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}})
+	}else{
+		result, err = t.taskCollection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}, {Key : "uid", Value : uid}})
+	}
+	fmt.Println(err)
 	if err != nil{
-		log.Fatal(err)
 		return 0
 	}
 	return result.DeletedCount
-	
 }
 
 /* Create a new task*/
-func (t *TaskManager) CreateTask(newTask models.Task)interface{}{
+func (t *TaskManager) CreateTask(newTask models.Task, user_id string)interface{}{
 	newTask.ID = primitive.NewObjectID()
+	userId, _ := primitive.ObjectIDFromHex(user_id)
+	newTask.UserId = userId
 	createdTask , err := bson.Marshal(newTask)
 	if err != nil{
 		return nil
 	}
-	task, err := t.Collection.InsertOne(context.TODO(), createdTask)
+	fmt.Println(newTask.UserId, user_id)
+	task, err := t.taskCollection.InsertOne(context.TODO(), createdTask)
 	if err != nil{
 		return nil
 	}
@@ -106,9 +115,9 @@ func (t *TaskManager) CreateTask(newTask models.Task)interface{}{
 }
 
 /* Updating a task with a given ID*/
-func  (t *TaskManager) UpdateTask(id string, newTask models.Task)bool{
+func  (t *TaskManager) UpdateTask(id string, uid string, role string, newTask models.Task)bool{
 	objId, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{Key: "_id", Value : objId}}
+	var filter primitive.D
 	var update bson.D
 	
 	if newTask.Title != ""{
@@ -120,11 +129,15 @@ func  (t *TaskManager) UpdateTask(id string, newTask models.Task)bool{
 	if newTask.Status != ""{
 		update = append(update, bson.E{Key: "status", Value: newTask.Status})
 	}
-	if !newTask.DueDate.IsZero(){
-		update = append(update, bson.E{Key: "dueDate", Value: newTask.DueDate})
+	// if !newTask.DueDate.IsZero(){
+	// 	update = append(update, bson.E{Key: "dueDate", Value: newTask.DueDate})
+	// }
+	if strings.ToUpper(role) == "ADMIN"{
+		filter = bson.D{{Key: "_id", Value : objId}}
+	}else{
+		filter = bson.D{{Key: "_id", Value : objId}, {Key: "uid", Value : uid}}
 	}
-	
-	result, err := t.Collection.UpdateOne(context.TODO(), filter, bson.D{{Key : "$set" , Value: update}})
+	result, err := t.taskCollection.UpdateOne(context.TODO(), filter, bson.D{{Key : "$set" , Value: update}})
 	if err != nil{
 		log.Fatal(err)
 		return false
