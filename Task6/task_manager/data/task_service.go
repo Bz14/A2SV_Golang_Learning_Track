@@ -35,18 +35,18 @@ func NewTaskManager() *TaskManager{
 
 /* List of all available tasks*/
 func (t *TaskManager)GetAllTasks(role string, uid string)[]models.Task{
-	var tasks []models.Task
 	option := options.Find()
+	var tasks []models.Task
 	var cursor *mongo.Cursor
 	var err error
-	fmt.Println("Role", strings.ToUpper(role))
+	var filter bson.D
+	userId, _ := primitive.ObjectIDFromHex(uid)
 	if strings.ToUpper(role) == "ADMIN"{
-		fmt.Println("Admin")
-		cursor, err = t.taskCollection.Find(context.TODO(), bson.D{{}}, option)
+		filter = bson.D{{}}
 	}else{
-		cursor, err = t.taskCollection.Find(context.TODO(), bson.D{{Key : "uid", Value : uid}})
+		filter = bson.D{{Key : "uid", Value : userId}}
 	}
-	
+	cursor, err = t.taskCollection.Find(context.TODO(), filter, option)
 	if err != nil{
 		log.Fatal(err)
 		return nil
@@ -55,7 +55,7 @@ func (t *TaskManager)GetAllTasks(role string, uid string)[]models.Task{
 		var task models.Task
 		err := cursor.Decode(&task)
 		if err != nil{
-			log.Fatal(err)
+			// log.Fatal(err)
 			return nil
 		}
 		tasks = append(tasks, task)
@@ -73,7 +73,7 @@ func (t *TaskManager)GetTaskById(id string, uid string, role string)interface{}{
 	if err != nil{
 		return nil
 	}
-	fmt.Println(err)
+	fmt.Println("Task", task)
 	if strings.ToUpper(role) == "USER" && task.UserId != userId{
 		return nil
 	}
@@ -85,12 +85,12 @@ func (t *TaskManager) DeleteTaskById(id string, uid string, role string)int64{
 	var err error
 	var result *mongo.DeleteResult
 	objId, _ := primitive.ObjectIDFromHex(id)
+	user_id, _ := primitive.ObjectIDFromHex(uid)
 	if strings.ToUpper(role) == "ADMIN"{
 		result, err = t.taskCollection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}})
 	}else{
-		result, err = t.taskCollection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}, {Key : "uid", Value : uid}})
+		result, err = t.taskCollection.DeleteOne(context.TODO(), bson.D{{Key: "_id" , Value: objId}, {Key : "uid", Value : user_id}})
 	}
-	fmt.Println(err)
 	if err != nil{
 		return 0
 	}
@@ -106,7 +106,6 @@ func (t *TaskManager) CreateTask(newTask models.Task, user_id string)interface{}
 	if err != nil{
 		return nil
 	}
-	fmt.Println(newTask.UserId, user_id)
 	task, err := t.taskCollection.InsertOne(context.TODO(), createdTask)
 	if err != nil{
 		return nil
@@ -115,10 +114,11 @@ func (t *TaskManager) CreateTask(newTask models.Task, user_id string)interface{}
 }
 
 /* Updating a task with a given ID*/
-func  (t *TaskManager) UpdateTask(id string, uid string, role string, newTask models.Task)bool{
+func  (t *TaskManager) UpdateTask(id string, uid string, role string, newTask models.Task)(bool, error){
 	objId, _ := primitive.ObjectIDFromHex(id)
 	var filter primitive.D
 	var update bson.D
+	user_id, _ := primitive.ObjectIDFromHex(uid)
 	
 	if newTask.Title != ""{
 		update = append(update, bson.E{Key: "title", Value: newTask.Title})
@@ -129,19 +129,25 @@ func  (t *TaskManager) UpdateTask(id string, uid string, role string, newTask mo
 	if newTask.Status != ""{
 		update = append(update, bson.E{Key: "status", Value: newTask.Status})
 	}
-	// if !newTask.DueDate.IsZero(){
-	// 	update = append(update, bson.E{Key: "dueDate", Value: newTask.DueDate})
-	// }
+	if newTask.DueDate != ""{
+		update = append(update, bson.E{Key: "dueDate", Value: newTask.DueDate})
+	}
+	fmt.Println("--------------------------------")
+	fmt.Println("Update", update)
 	if strings.ToUpper(role) == "ADMIN"{
 		filter = bson.D{{Key: "_id", Value : objId}}
+
 	}else{
-		filter = bson.D{{Key: "_id", Value : objId}, {Key: "uid", Value : uid}}
+		filter = bson.D{{Key: "_id", Value : objId}, {Key: "uid", Value : user_id}}
 	}
+	fmt.Println("Filter", filter)
 	result, err := t.taskCollection.UpdateOne(context.TODO(), filter, bson.D{{Key : "$set" , Value: update}})
+	fmt.Println("Result", result)
 	if err != nil{
-		log.Fatal(err)
-		return false
+		// log.Fatal(err)
+		return false, err
 	}
-	return result.ModifiedCount > 0
+	fmt.Println(result.ModifiedCount)
+	return result.ModifiedCount > 0, nil
 }
 

@@ -135,16 +135,21 @@ func UpdateTaskHandler(ctx *gin.Context){
 		})
 		return
 	}
-	result := taskManager.UpdateTask(id, user_id, role, task)
+	result, err := taskManager.UpdateTask(id, user_id, role, task)
 	if result {
 		ctx.IndentedJSON(http.StatusOK, gin.H{
 			 "message" : "Task Updated",
 		})
-	}else{
+	}else if err != nil{
 		ctx.IndentedJSON(http.StatusNotFound, gin.H{
 			"message" : "Task not found",
 		})
+	}else{
+		ctx.IndentedJSON(http.StatusNotFound, gin.H{
+			"message" : "No Changes made",
+		})
 	}
+
 }
 
 func UserRegisterHandler(c *gin.Context){
@@ -163,7 +168,7 @@ func UserRegisterHandler(c *gin.Context){
 		})
 	}else{
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message" : err,
+			"message" : err.Error(),
 		})
 	}
 }
@@ -179,8 +184,7 @@ func UserLoginHandler(c *gin.Context){
 	token, err := users.Login(user)
 	if err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message" : err,
-			"token" : token,
+			"message" : err.Error(),
 		})
 	}else{
 		c.JSON(http.StatusOK, gin.H{
@@ -189,7 +193,6 @@ func UserLoginHandler(c *gin.Context){
 		})
 	}
 }
-
 
 func userInfo(ctx *gin.Context)(string, string, error){
 	role, exists := ctx.Get("role")

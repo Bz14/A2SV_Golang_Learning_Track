@@ -62,9 +62,7 @@ func (users *Users) Login(user models.User)(string, error){
 		if err == mongo.ErrNoDocuments {
 			return "", errors.New("invalid username or password")
 		}
-		return "", errors.New("error retrieving user")
 	}
-	
 	if !unHashPassword([]byte(loggedUser.Password), []byte(user.Password)) {
 		return "", errors.New("invalid username or password")
 	}
