@@ -7,10 +7,11 @@ An api endpoint for performing CRUD operations.
 The project is organized into several packages:
 
 - **main.go**: This is the entry point of the application.
-- **models/**: This package contains the data structures used in the application, including `Task`.
+- **models/**: This package contains the data structures used in the application, including `Task` and `User`.
 - **controllers/**: This package contains the `task_controller.go` file, which Handles incoming HTTP requests and invokes the appropriate service methods.
 - **router/**: This package contains the `router.go` file, which sets up the routes and initializes the Gin router and Defines the routing configuration for the API
-- **data/**: This package contains the `task_service.go` file, which contains business logic and data manipulation functions.
+- **data/**: This package contains the `task_service.go` and `user_service.go` file, which contains business logic and data manipulation functions.
+- **middleware/**: This package contains the `auth_middleware.go` which implements middleware to validate JWT tokens for authentication and authorization.
 
 ## Installation Instructions
 
@@ -123,5 +124,37 @@ Ensure your MongoDB server is running. You can start it using:
 
 - **400 Bad Request:** Invalid task ID.
 - **404 Not Found:** Task not found.
+
+### Register User
+
+**Endpoint:** `POST /register`
+
+This endpoint allows you to register a new user.
+
+**Request Body:**
+
+- `email` (string): The email address of the user.
+- `password` (string): The password for the user account.
+- `role` (string): The role of the user.
+
+**Response:** The response will include a success message and a user ID.
+
+### Login User
+
+**Endpoint:** `POST /login`
+
+This endpoint allows users to log in and obtain a JWT token for authentication.
+
+**Request Body:**
+
+- `email` (string): The email address of the user.
+- `password` (string): The password for the user account.
+
+**Response:**
+
+- **Status:** 200
+- **Content-Type:** application/json
+
+The response will include a success message and a JWT token.
 
 [Postman Documentation](https://documenter.getpostman.com/view/34226868/2sA3rzJs2U)

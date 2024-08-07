@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"errors"
+	"fmt"
 	"task_manager/database"
 	"task_manager/models"
 	"time"
@@ -62,10 +63,13 @@ func (users *Users) Login(user models.User)(string, error){
 		if err == mongo.ErrNoDocuments {
 			return "", errors.New("invalid username or password")
 		}
-	}
-	if !unHashPassword([]byte(loggedUser.Password), []byte(user.Password)) {
 		return "", errors.New("invalid username or password")
 	}
+	fmt.Println(user)
+	fmt.Println(loggedUser)
+	if err := unHashPassword([]byte(loggedUser.Password), []byte(user.Password)); err != nil {
+        return "", errors.New("invalid username or password")
+    }
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id" : loggedUser.ID,
 		"username" : loggedUser.UserName,
@@ -87,6 +91,6 @@ func hashPassword(password string)[]byte{
 	return hashedPassword
 }
 
-func unHashPassword(existingPassword []byte, newPassword []byte)bool{
-	return bcrypt.CompareHashAndPassword(existingPassword, newPassword) == nil
+func unHashPassword(existingPassword []byte, newPassword []byte)error{
+	return bcrypt.CompareHashAndPassword(existingPassword, newPassword)
 }

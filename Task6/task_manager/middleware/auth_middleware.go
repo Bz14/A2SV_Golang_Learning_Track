@@ -18,6 +18,7 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 				"error" : "Authorization header required.",
 			})
 			c.Abort()
+			return
 		}
 		auth := strings.Split(authHeader, " ")
 		fmt.Println(auth)

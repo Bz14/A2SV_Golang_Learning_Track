@@ -32,7 +32,7 @@ func AllTaskHandler(ctx *gin.Context){
 	}else{
 		ctx.IndentedJSON(http.StatusNotFound, 
 			gin.H{
-				"message" : "Error fetching on tasks",
+				"message" : "Task not found",
 		})
 	}
 }
@@ -146,7 +146,7 @@ func UpdateTaskHandler(ctx *gin.Context){
 		})
 	}else{
 		ctx.IndentedJSON(http.StatusNotFound, gin.H{
-			"message" : "No Changes made",
+			"message" : "Task not found",
 		})
 	}
 
