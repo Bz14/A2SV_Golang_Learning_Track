@@ -125,7 +125,7 @@ Ensure your MongoDB server is running. You can start it using:
 - **400 Bad Request:** Invalid task ID.
 - **404 Not Found:** Task not found.
 
-### Register User
+### POST /register
 
 **Endpoint:** `POST /register`
 
@@ -139,7 +139,7 @@ This endpoint allows you to register a new user.
 
 **Response:** The response will include a success message and a user ID.
 
-### Login User
+### POST /login
 
 **Endpoint:** `POST /login`
 
