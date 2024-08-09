@@ -5,6 +5,7 @@ import (
 )
 
 const CollectionTask string = "tasks"
+const CollectionUser string = "user"
 
 type Task struct {
 	ID          primitive.ObjectID `json:"_id" bson:"_id"`
@@ -13,6 +14,13 @@ type Task struct {
 	DueDate     string      `json:"dueDate" bson:"dueDate"`   //time.Time 
 	Status      string             `json:"status" bson:"status"`
 	UserId      primitive.ObjectID `json:"uid" bson:"uid"`
+}
+
+type User struct {
+	ID   primitive.ObjectID `json:"_id" bson:"_id"`
+	UserName string `json:"username" bson:"username"`
+	Password string `json:"password" bson:"password"`
+	Role string `json:"role" bson:"role"`
 }
 
 type TaskRepository interface{
@@ -29,4 +37,14 @@ type TaskUseCase interface{
 	DeleteTaskById(id string, uid string, role string)(bool, error)
 	CreateTask(newTask Task, uid string, role string)(interface{}, error)
 	UpdateTask(id string, uid string, role string, newTask Task)(bool, error)
+}
+
+type UserUseCase interface{
+	Register(user User) (interface{}, error)
+	Login(user User) (string, error)
+}
+
+type UserRepository interface{
+	Register(user User)(interface{}, error)
+	Login(user User)(string, error)
 }

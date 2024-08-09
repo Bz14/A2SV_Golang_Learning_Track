@@ -59,7 +59,7 @@ func (taskRepository *TaskRepository) GetTaskById(id string, uid string, role st
 	task_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil{
 		//log.Fatal(err)
-		return domain.Task{}, errors.New("Task not found")
+		return domain.Task{}, errors.New("task not found")
 	}
 	user_id, err := primitive.ObjectIDFromHex(uid)
 	if err != nil && strings.ToUpper(role) == "USER"{

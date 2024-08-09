@@ -34,6 +34,7 @@ func Setup()(*controllers.Controller, *infrastructure.Auth){
 
 func Route(route *gin.Engine){
 	controller, middleware := Setup()
+	
 	route.GET("/tasks", middleware.AuthenticationMiddleware(), controller.GetAllTaskHandler)
 	route.GET("/tasks/:id", middleware.AuthenticationMiddleware(), controller.TaskByIdHandler)
 	route.DELETE("/tasks/:id",middleware.AuthenticationMiddleware(), controller.DeleteTaskHandler)
